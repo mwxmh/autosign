@@ -5,7 +5,7 @@ import urllib2,time
 
 
 def Main(usrcode,password):
-    loginUrl="http://hqhr.efoxconn.com:999/HR/LoginForm.aspx" 
+    loginUrl="http://x.x.com:999/HR/LoginForm.aspx" 
     headers={'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)'}
     Cookie = cookielib.CookieJar()    
     pageOpener = urllib2.build_opener(urllib2.HTTPCookieProcessor(Cookie))
@@ -39,7 +39,7 @@ def Main(usrcode,password):
     '''                 
     #print {c.name:c.value for c in Cookie }
     
-    signurl='http://hqhr.efoxconn.com:999/HR/PCM/PCMNetSignInOutEditForm.aspx?WorkNo='+usrcode+'&ModuleCode=PCMSYS13'
+    signurl='http://x.x.com:999/HR/PCM/PCMNetSignInOutEditForm.aspx?WorkNo='+usrcode+'&ModuleCode=PCMSYS13'
     mainPageRequest = urllib2.Request(signurl)
     mainPageHTML = pageOpener.open(mainPageRequest).read() 
     soup=BeautifulSoup(mainPageHTML, 'html.parser')

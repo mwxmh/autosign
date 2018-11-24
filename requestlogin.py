@@ -5,8 +5,8 @@ import requests,time
 def login(usrcode,password):
     session = requests.Session()
     header={'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)'}  
-    loginurl='http://hqhr.efoxconn.com:999/HR/LoginForm.aspx'
-    loginreq = session.get('http://hqhr.efoxconn.com:999/HR/LoginForm.aspx')
+    loginurl='http://x.x.com:999/HR/LoginForm.aspx'
+    loginreq = session.get('http://x.x.com:999/HR/LoginForm.aspx')
     loginHtml= loginreq.text
     soup=BeautifulSoup(loginHtml, 'html.parser')
     __VIEWSTATE=soup.find(id="__VIEWSTATE")['value']
@@ -28,7 +28,7 @@ def login(usrcode,password):
     } 
     loginResponse = session.post(url=loginurl, headers=header, data=logindata)
     
-    signurl='http://hqhr.efoxconn.com:999/HR/PCM/PCMNetSignInOutEditForm.aspx?WorkNo='+usrcode+'&ModuleCode=PCMSYS13'
+    signurl='http://x.x.com:999/HR/PCM/PCMNetSignInOutEditForm.aspx?WorkNo='+usrcode+'&ModuleCode=PCMSYS13'
     signreq=session.get(signurl)
     signHtml= signreq.text
 
