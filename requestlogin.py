@@ -39,7 +39,7 @@ def login(usrcode,password):
     'ASP.NET_SessionId':session.cookies['ASP.NET_SessionId'],
     'CultureResource':'zh-tw',
     'ServerName':'E-HRM',
-    'UserCode':'F3235085'
+    'UserCode':'XXXXX'
     }
     '''
     signdata={
@@ -61,4 +61,4 @@ if __name__ == '__main__':
     sDay=time.strftime("%A", time.localtime()) 
     if ((sTime>'07:30:01'and sTime<'07:59:01') or sTime>'17:30:01') \
        and (sDay!='Sunday'):
-        login('F3235085','20180301')
+        login('XXXX','XXXX')
