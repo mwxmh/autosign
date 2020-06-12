@@ -30,6 +30,7 @@ cookies = driver.get_cookies()
 for cookie in cookies:
         s.cookies.set(cookie['name'],cookie['value'])
 driver.close()
+driver.quit()
 #登录后重新访问url        
 resp = s.get(page_url)
 for ieFlag in ('I','E'):
