@@ -77,7 +77,7 @@ def main():
         driver.quit()
 
 def Query(corpCode):
-    ora = cx_Oracle.connect('webcus/Ecusweb200@10.134.7.84:1521/csedbslh')
+    ora = cx_Oracle.connect('test/test@test:1521/csedbslh')
     cursor = ora.cursor()    
     try:
         qSql="select wzo01,wzo09 from wzo_file where wzo08='"+corpCode+"'"
@@ -120,8 +120,8 @@ def backward(driver):
     driver.find_element_by_id("bwlNo").clear()     
 
 if __name__ == '__main__':
-        #main()
-        Query('4101630001')
+        main()
+        #Query('4101630001')
         #callWsdl('4101630001','7HJ-B10001','T4612D000006','5415','0808031-0041168','6')    
 
 
