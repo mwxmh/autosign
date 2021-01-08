@@ -4,6 +4,7 @@ from selenium import webdriver
 from tkinter import *
 from tkinter import messagebox
 from suds.client import Client
+from suds.xsd.doctor import ImportDoctor,Import
 
 
 def main():
@@ -62,7 +63,7 @@ def main():
             driver.find_element_by_id("querycopGNo").clear()
             driver.find_element_by_id("queryinvtNo").clear()
             driver.find_element_by_id("queryinvtGNo").clear()
-            #msg=callWsdl(corpCode,item[4],item[1],gdsSeqNo,item[2],item[3])
+            msg=callWsdl(corpCode,item[4],item[1],gdsSeqNo,item[2],item[3])
             if msg!=None:
                 messagebox.showerror("错误",msg)
                 break
@@ -76,7 +77,7 @@ def main():
         driver.quit()
 
 def Query(corpCode):
-    ora = cx_Oracle.connect('test/test@test:1521/csedbslh')
+    ora = cx_Oracle.connect('webcus/Ecusweb200@10.134.7.84:1521/csedbslh')
     cursor = ora.cursor()    
     try:
         qSql="select wzo01,wzo09 from wzo_file where wzo08='"+corpCode+"'"
@@ -104,7 +105,9 @@ def Query(corpCode):
 def callWsdl(corpCode,preNo,emsNo,gdsSeqNo,bsi14,bsi25):
     try:
         url='http://xxx/EcusWebService.asmx?wsdl' 
-        client= Client(url)
+        imp = Import('http://www.w3.org/2001/XMLSchema',location='http://www.w3.org/2001/XMLSchema.xsd')
+        imp.filter.add('http://tempuri.org/')        
+        client= Client(url,doctor = ImportDoctor(imp))
         msg=client.service.updateGold2bwl(corpCode,preNo,emsNo,gdsSeqNo,bsi14,bsi25)
         print (msg)         
     except Exception as e:
@@ -118,7 +121,8 @@ def backward(driver):
 
 if __name__ == '__main__':
         #main()
-        Query('xxx')    
+        Query('4101630001')
+        #callWsdl('4101630001','7HJ-B10001','T4612D000006','5415','0808031-0041168','6')    
 
 
 
