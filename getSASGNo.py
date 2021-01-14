@@ -11,6 +11,8 @@ def main():
     driver_path="C:\chromedriver_win32\chromedriver.exe"
     msg=None       
     try:
+        root=Tk()
+        root.withdraw()#隐藏主窗口
         driver = webdriver.Chrome(driver_path)
         page_url='https://swapp.singlewindow.cn/sasserver/sw/ems/pub/bwlQueryList?sysId=Z7&ngBasePath=https%3A%2F%2Fswapp.singlewindow.cn%3A443%2Fsasserver%2F'
         driver.get(page_url)
