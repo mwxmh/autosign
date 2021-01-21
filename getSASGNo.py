@@ -1,5 +1,5 @@
 # coding:utf-8
-import requests,sys,os,json,time,cx_Oracle
+import requests,time,cx_Oracle
 from selenium import webdriver
 from tkinter import *
 from tkinter import messagebox
@@ -28,48 +28,54 @@ def main():
         cookies = driver.get_cookies()
         for cookie in cookies:
             session.cookies.set(cookie['name'],cookie['value'])        
-        list=Query(corpCode)
-        for item in list:
+        dict=Query(corpCode)
+        for book,list in  dict.items():
             driver.find_element_by_id("selTradeCode").send_keys(corpCode)
-            driver.find_element_by_id("bwlNo").send_keys(item[1])
+            driver.find_element_by_id("bwlNo").send_keys(book)
             driver.find_element_by_id("inputDateStart").clear()
             driver.find_element_by_id("inputDateEnd").clear()
             driver.find_element_by_id("btn-search").click()
             time.sleep(2)
-            checkboxs = driver.find_elements_by_xpath("//input[@type='checkbox']")    
+            checkboxs = driver.find_elements_by_xpath("//input[@type='checkbox']")
+            #第一个勾选框选中    
             checkboxs[0].click()
+            #查看明细
             driver.find_element_by_id("bwlQuertyDetailBtn").click()
             time.sleep(5)
             try:
+                #表体
                 driver.find_element_by_xpath("//a[@href='#bwlBillInfo']").click()
             except Exception as e:
                 messagebox.showinfo("提示","完毕!")
                 break
-            
-            driver.find_element_by_id("querycopGNo").send_keys(item[2])    #料号
-            print(item[2])
-            if item[0]==None:
-                backward(driver)    
-                continue
-            driver.find_element_by_id("queryinvtNo").send_keys(item[0])    #核注清单号 
-            driver.find_element_by_id("queryinvtGNo").send_keys(item[3])   #归并项次
-            driver.find_element_by_id("quickQueryBillBtn").click()
-            driver.switch_to.default_content()
-            time.sleep(3)
-            try:
-                gdsSeqNo=driver.find_element_by_xpath("//*[@id='bwlBillInfoTalbe']/tbody/tr/td[2]").text
-            except Exception as e:
-                backward(driver)
-                continue  
-            print(gdsSeqNo)
-            driver.find_element_by_id("querycopGNo").clear()
-            driver.find_element_by_id("queryinvtNo").clear()
-            driver.find_element_by_id("queryinvtGNo").clear()
-            msg=callWsdl(corpCode,item[4],item[1],gdsSeqNo,item[2],item[3])
-            if msg!=None:
-                messagebox.showerror("错误",msg)
-                break
-            else:
+            for item in list:           
+                driver.find_element_by_id("querycopGNo").send_keys(item[2])    #料号
+                print(item[2])
+                if item[0]==None:
+                    driver.find_element_by_id("querycopGNo").clear()    
+                    continue
+                driver.find_element_by_id("queryinvtNo").send_keys(item[0])    #核注清单号 
+                driver.find_element_by_id("queryinvtGNo").send_keys(item[3])   #归并项次
+                driver.find_element_by_id("quickQueryBillBtn").click()
+                driver.switch_to.default_content()
+                time.sleep(3)
+                try:
+                    gdsSeqNo=driver.find_element_by_xpath("//*[@id='bwlBillInfoTalbe']/tbody/tr/td[2]").text
+                except Exception as e:
+                    driver.find_element_by_id("querycopGNo").clear()
+                    driver.find_element_by_id("queryinvtNo").clear()
+                    driver.find_element_by_id("queryinvtGNo").clear()
+                    continue  
+                print(gdsSeqNo)                
+                msg=callWsdl(corpCode,item[4],item[1],gdsSeqNo,item[2],item[3])
+                if msg!=None:
+                    messagebox.showerror("错误",msg)
+                    break
+                else:
+                    driver.find_element_by_id("querycopGNo").clear()
+                    driver.find_element_by_id("queryinvtNo").clear()
+                    driver.find_element_by_id("queryinvtGNo").clear()    
+            if msg==None:    
                 backward(driver)             
                
     except Exception as e:
@@ -79,7 +85,8 @@ def main():
         driver.quit()
 
 def Query(corpCode):
-    ora = cx_Oracle.connect('test/test@test:1521/csedbslh')
+    dict={}
+    ora = cx_Oracle.connect('XX/XX@XX:1521/csedbslh')
     cursor = ora.cursor()    
     try:
         qSql="select wzo01,wzo09 from wzo_file where wzo08='"+corpCode+"'"
@@ -97,7 +104,11 @@ def Query(corpCode):
         cursor.execute(qSql)
         list=cursor.fetchall()
         print(list)
-        return list
+        for item in list:
+            #列表转字典,K是账册,V是列表
+            dict.setdefault(item[1],[]).append(item)
+        print(dict)    
+        return dict
     except Exception as e:
         print(str(e))
     finally:
@@ -106,20 +117,23 @@ def Query(corpCode):
 
 def callWsdl(corpCode,preNo,emsNo,gdsSeqNo,bsi14,bsi25):
     try:
-        url='http://xxx/EcusWebService.asmx?wsdl' 
+        url='http://XX/EcusWebService.asmx?wsdl' 
         imp = Import('http://www.w3.org/2001/XMLSchema',location='http://www.w3.org/2001/XMLSchema.xsd')
-        imp.filter.add('http://tempuri.org/')        
-        client= Client(url,doctor = ImportDoctor(imp))
+        imp.filter.add('http://tempuri.org/')
+        doctor = ImportDoctor(imp)        
+        client= Client(url,doctor = doctor)
         msg=client.service.updateGold2bwl(corpCode,preNo,emsNo,gdsSeqNo,bsi14,bsi25)
         print (msg)         
     except Exception as e:
         msg=bsi14+' 回写失败:'+str(e)
-    return msg
+        print(msg)
+    return msg    
 
 def backward(driver):    
     driver.execute_script("window.history.go(-1)")
     driver.find_element_by_id("selTradeCode").clear()
-    driver.find_element_by_id("bwlNo").clear()     
+    driver.find_element_by_id("bwlNo").clear()
+       
 
 if __name__ == '__main__':
         main()
