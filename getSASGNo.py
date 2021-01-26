@@ -5,6 +5,7 @@ from tkinter import *
 from tkinter import messagebox
 from suds.client import Client
 from suds.xsd.doctor import ImportDoctor,Import
+from suds.xsd import sxbasic
 
 
 def main():
@@ -62,6 +63,7 @@ def main():
                 try:
                     gdsSeqNo=driver.find_element_by_xpath("//*[@id='bwlBillInfoTalbe']/tbody/tr/td[2]").text
                 except Exception as e:
+                    print(str(e))
                     driver.find_element_by_id("querycopGNo").clear()
                     driver.find_element_by_id("queryinvtNo").clear()
                     driver.find_element_by_id("queryinvtGNo").clear()
@@ -86,7 +88,7 @@ def main():
 
 def Query(corpCode):
     dict={}
-    ora = cx_Oracle.connect('XX/XX@XX:1521/csedbslh')
+    ora = cx_Oracle.connect('xxx/xxx@xxx:1521/csedbslh')
     cursor = ora.cursor()    
     try:
         qSql="select wzo01,wzo09 from wzo_file where wzo08='"+corpCode+"'"
@@ -103,7 +105,6 @@ def Query(corpCode):
         and is_invt='Y' AND BSH00='0' AND LIST_STAT between 9 and 43"
         cursor.execute(qSql)
         list=cursor.fetchall()
-        print(list)
         for item in list:
             #列表转字典,K是账册,V是列表
             dict.setdefault(item[1],[]).append(item)
@@ -115,18 +116,27 @@ def Query(corpCode):
         cursor.close()
         ora.close()
 
+'''
+https://www.cnblogs.com/suwhatsu/p/14173376.html
+1.下载http://www.w3.org/2001/XMLSchema.xsd和http://www.w3.org/2001/xml.xsd
+分别保存为XMLSchema.xml 和 xml.xml （改文件后缀）放在本机项目中下
+1.添加sxbasic.Import.bind
+sxbasic.Import.bind('http://www.w3.org/2001/XMLSchema', 'file:文件目录地址/XMLSchema.xml')
+2.在XMLSchema.xml的 91行
+<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd">中schemaLocation 改为本地xml路径
+'''        
+
 def callWsdl(corpCode,preNo,emsNo,gdsSeqNo,bsi14,bsi25):
     try:
-        url='http://XX/EcusWebService.asmx?wsdl' 
-        imp = Import('http://www.w3.org/2001/XMLSchema',location='http://www.w3.org/2001/XMLSchema.xsd')
+        url='http://xxx/ecuswebswrec.asmx?wsdl'
+        sxbasic.Import.bind('http://www.w3.org/2001/XMLSchema', 'file:XMLSchema.xml') 
+        imp = Import('http://www.w3.org/2001/XMLSchema')
         imp.filter.add('http://tempuri.org/')
-        doctor = ImportDoctor(imp)        
+        doctor = ImportDoctor(imp)      
         client= Client(url,doctor = doctor)
-        msg=client.service.updateGold2bwl(corpCode,preNo,emsNo,gdsSeqNo,bsi14,bsi25)
-        print (msg)         
+        msg=client.service.updateGold2bwl(corpCode,preNo,emsNo,gdsSeqNo,bsi14,bsi25)        
     except Exception as e:
         msg=bsi14+' 回写失败:'+str(e)
-        print(msg)
     return msg    
 
 def backward(driver):    
