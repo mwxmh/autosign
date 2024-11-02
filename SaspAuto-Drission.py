@@ -15,19 +15,25 @@ def auto_declare() -> None:
         page = ChromiumPage(co)
         page.get('https://ha.singlewindow.cn/hnsw/swProxy/deskserver/sw/deskIndex?menu_id=sas')
         page.wait.load_start()
-        if '修改密码' not in page.html:
+
+        if '修改密码' not in page.html and '海关特殊监管区' not in page.html:
             page.ele('#cardTabBtn').click()
             page.ele("xpath://*[@id='checkboxIntel']").click()
             page.ele('#password').input('66666666')
             page.ele('#loginbutton').click()
             page.wait.load_start()
             page.ele('.layui-layer-btn0').click()
+        elif '海关特殊监管区' in page.html:
+            pass
         else:
             page.ele('.layui-layer-btn0').click()
 
         searchElement = page.ele("xpath://*[@id='menu_li']/ul/li[15]/a/span[1]")
         searchElement.click()
         two_steps_declare(page, logger)
+        page.refresh()
+        searchElement = page.ele("xpath://*[@id='menu_li']/ul/li[15]/a/span[1]")
+        searchElement.click()
         custom_declare(page, logger)
     except Exception as e:
         logger.error('主程序异常:' + str(e))
@@ -65,6 +71,9 @@ def cus_declare_recursion(page, logger) -> None:
         no_data_btn.click()
     else:
         check_boxs = page.eles("@name=btSelectItem")
+        tr = page.ele("@data-index=0").text
+        seqNo = tr.split('\t')[1].strip()
+
         if check_boxs:
             check_boxs[0].click()
             page.ele("xpath://*[@id='btn-modify']").click()
@@ -75,7 +84,8 @@ def cus_declare_recursion(page, logger) -> None:
                 page.ele('.layui-layer-btn0').click()
                 page.wait(4)
                 # 核放单明细页签关闭
-                page.ele("xpath://*[@id='passport']/i").click()
+                close_btn = "xpath://*[@id='passport-modify-" + seqNo + "']/i"
+                page.ele(close_btn).click()
                 # page.ele("xpath://*[@id='page-wrapper']/div[1]/nav/div/a[2]").click()
                 logger.info("非两步核放单申报成功")
                 cus_declare_recursion(page, logger)
