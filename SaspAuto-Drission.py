@@ -28,11 +28,11 @@ def auto_declare() -> None:
         else:
             page.ele('.layui-layer-btn0').click()
 
-        searchElement = page.ele("xpath://*[@id='menu_li']/ul/li[15]/a/span[1]")
+        searchElement = page.ele("xpath://*[@id='menu_li']/ul/li[17]/a/span[1]")
         searchElement.click()
         two_steps_declare(page, logger)
         page.refresh()
-        searchElement = page.ele("xpath://*[@id='menu_li']/ul/li[15]/a/span[1]")
+        searchElement = page.ele("xpath://*[@id='menu_li']/ul/li[17]/a/span[1]")
         searchElement.click()
         custom_declare(page, logger)
     except Exception as e:
@@ -46,12 +46,12 @@ def auto_declare() -> None:
 # 非两步申报核放单
 def custom_declare(page, logger) -> None:
     try:
-        page.ele("xpath://*[@id='menu_li']/ul/li[15]/ul/li[9]/a").click()
+        page.ele("xpath://*[@id='menu_li']/ul/li[17]/ul/li[10]/a").click()
         page.wait.load_start()
         page.ele('#statusName').input('0')
         ac = Actions(page)
         ac.move_to("@data-value=0").click()
-        corps = ['4101630001', '410166A009', '4101660002', '4101661002', '4101660020', '4101662001']
+        corps = ['4101630001', '410166A009', '4101660002', '4101661002', '4101640A0L', '4101662001']
         for corpCode in corps:
             page.ele('#selTradeCode').input(corpCode)
             print(corpCode)
@@ -94,7 +94,7 @@ def cus_declare_recursion(page, logger) -> None:
 # 两步申报
 def two_steps_declare(page, logger) -> None:
     try:
-        page.ele("xpath://*[@id='menu_li']/ul/li[15]/ul/li[14]/a").click()
+        page.ele("xpath://*[@id='menu_li']/ul/li[17]/ul/li[15]/a").click()
         page.wait.load_start()
         page.ele('#statusName').input('0')
         ac = Actions(page)
